@@ -48,6 +48,9 @@ cd lqa-checker
 npm install
 npm run dev
 ```
+## Screenshot
+<img width="2487" height="1272" alt="Snimka zaslona 2026-03-01 172631" src="https://github.com/user-attachments/assets/5a0e3ec0-16a0-4097-8f17-805185b0221e" />
+
 
 ## Potential Extensions
 
