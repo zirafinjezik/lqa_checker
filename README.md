@@ -114,7 +114,7 @@ This tool is part of a set of three open-source LQA tools built around the full 
 | Tool | Purpose | Link |
 |---|---|---|
 | **MQM Error Scorer** | Log errors, score quality, export reports | [mqm-checker.vercel.app](https://mqm-checker.vercel.app) |
-| **LQA Checker** | Validate character limits and punctuation consistency | [lqa-string-checker.vercel.app](https://lqa-string-checker.vercel.app) |
+| **LQA Checker** | Validate character limits and punctuation consistency | [lqa-checker.vercel.app](https://lqa-checker.vercel.app) |
 | **LQA Challenge** | Practice and train LQA skills | [lqa-game.vercel.app](https://lqa-game.vercel.app) |
 
 ---
