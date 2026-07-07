@@ -2,7 +2,7 @@
 
 A lightweight QA tool for localization teams that checks translated strings for character limit overflows and punctuation consistency between source and target. Supports both direct text input and CSV file uploads.
 
-**Live demo:** [lqa-checker-s7wi.vercel.app](https://lqa-checker-s7wi.vercel.app)
+**Live demo:** [lqa-string-checker.vercel.app](https://lqa-string-checker.vercel.app)
 
 **Repository:** [github.com/zirafinjezik/lqa_checker](https://github.com/zirafinjezik/lqa_checker)
 
@@ -16,11 +16,15 @@ A lightweight QA tool for localization teams that checks translated strings for 
 
 ## What It Does
 
-- **Character limit validation**: checks target string length against a configurable limit and flags overflows
-- **Punctuation consistency checks**: compares source and target for mismatched ending punctuation, ellipsis count differences, and exclamation mark discrepancies
+- **Character limit validation**: checks target string length (Unicode code points) against a configurable limit and flags overflows
+- **Placeholder and tag parity**: `{0}`, `%s`, `%1$s`, `<b>` tags, and `\n` escapes are counted in source and target; any mismatch is an error
+- **Punctuation consistency checks**: mismatched ending punctuation, plus ellipsis, exclamation mark, and question mark count differences
+- **Whitespace checks**: leading/trailing whitespace and double spaces introduced by the target
+- **Number consistency**: digits present in source but missing in target (locale separators like 1,000 vs 1.000 are not flagged)
 - **Two input modes**: paste source/target strings directly (one per line) or upload a CSV file with column mapping
 - **Summary dashboard**: overview of total strings, errors, warnings, and passes at a glance
 - **Expandable results table**: click any row to see detailed issue breakdown with severity badges (Error, Warning, Pass)
+- **CSV export of results**: one click, ready to attach to a ticket
 
 ---
 
@@ -56,6 +60,11 @@ Character overflow and punctuation mismatch are among the most common and easily
 | Punctuation mismatch | Warning | Source and target end with different punctuation marks |
 | Ellipsis count mismatch | Warning | Different number of ellipses in source vs. target |
 | Exclamation mark mismatch | Warning | Different number of exclamation marks in source vs. target |
+| Question mark mismatch | Warning | Different number of question marks in source vs. target |
+| Placeholder mismatch | Error | Placeholder, tag, or escape present in one side only |
+| Whitespace | Warning | Leading/trailing whitespace or double spaces introduced by target |
+| Number mismatch | Warning | Number present in one side only |
+| Alignment | Error | Line has a source but no target, or a target but no source |
 
 ---
 
@@ -105,7 +114,7 @@ This tool is part of a set of three open-source LQA tools built around the full 
 | Tool | Purpose | Link |
 |---|---|---|
 | **MQM Error Scorer** | Log errors, score quality, export reports | [mqm-checker.vercel.app](https://mqm-checker.vercel.app) |
-| **LQA Checker** | Validate character limits and punctuation consistency | [lqa-checker-s7wi.vercel.app](https://lqa-checker-s7wi.vercel.app) |
+| **LQA Checker** | Validate character limits and punctuation consistency | [lqa-string-checker.vercel.app](https://lqa-string-checker.vercel.app) |
 | **LQA Challenge** | Practice and train LQA skills | [lqa-game.vercel.app](https://lqa-game.vercel.app) |
 
 ---
