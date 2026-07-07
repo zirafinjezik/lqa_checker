@@ -2,7 +2,7 @@
 
 A lightweight QA tool for localization teams that checks translated strings for character limit overflows and punctuation consistency between source and target. Supports both direct text input and CSV file uploads.
 
-**Live demo:** [lqa-string-checker.vercel.app](https://lqa-string-checker.vercel.app)
+**Live demo:** [lqa-checker.vercel.app](https://lqa-checker.vercel.app)
 
 **Repository:** [github.com/zirafinjezik/lqa_checker](https://github.com/zirafinjezik/lqa_checker)
 
