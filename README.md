@@ -2,7 +2,7 @@
 
 A lightweight QA tool for localization teams that checks translated strings for character limit overflows and punctuation consistency between source and target. Supports both direct text input and CSV file uploads.
 
-**Live demo:** [lqa-checker.vercel.app](https://lqa-checker.vercel.app)
+**Live demo:** [lqa.zirafinjezik.hr](https://lqa.zirafinjezik.hr)
 
 **Repository:** [github.com/zirafinjezik/lqa_checker](https://github.com/zirafinjezik/lqa_checker)
 
@@ -113,9 +113,9 @@ This tool is part of a set of three open-source LQA tools built around the full 
 
 | Tool | Purpose | Link |
 |---|---|---|
-| **MQM Error Scorer** | Log errors, score quality, export reports | [mqm-checker.vercel.app](https://mqm-checker.vercel.app) |
-| **LQA Checker** | Validate character limits and punctuation consistency | [lqa-checker.vercel.app](https://lqa-checker.vercel.app) |
-| **LQA Challenge** | Practice and train LQA skills | [lqa-game.vercel.app](https://lqa-game.vercel.app) |
+| **MQM Error Scorer** | Log errors, score quality, export reports | [mqm.zirafinjezik.hr](https://mqm.zirafinjezik.hr) |
+| **LQA Checker** | Validate character limits and punctuation consistency | [lqa.zirafinjezik.hr](https://lqa.zirafinjezik.hr) |
+| **LQA Challenge** | Practice and train LQA skills | [game.zirafinjezik.hr](https://game.zirafinjezik.hr) |
 
 ---
 
@@ -127,6 +127,10 @@ This tool is part of a set of three open-source LQA tools built around the full 
 - 💼 [LinkedIn](https://www.linkedin.com/in/natalija-maric-zirafinjezik)
 
 ---
+
+## Privacy
+
+All processing happens in your browser. Pasted text and uploaded CSVs are handled by JavaScript on your machine and are never uploaded, stored, or transmitted anywhere. For confidential content you can also run the tool offline: clone the repo and run it locally. Hosting (Vercel) logs standard access data such as IP addresses, never string content.
 
 ## License
 
