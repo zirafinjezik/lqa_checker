@@ -160,6 +160,10 @@ export default function LQAChecker() {
             </div>
           </>
         )}
+
+        <p style={{ marginTop: 32, fontSize: 11.5, color: "#555", textAlign: "center" }}>
+          Runs entirely in your browser. Nothing you paste or upload is transmitted or stored.
+        </p>
       </div>
     </div>
   );
