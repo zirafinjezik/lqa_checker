@@ -1,25 +1,15 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LQA Checker — String QA for Localization</title>
-    <meta name="description" content="Check translated strings for character limit overflows, missing placeholders, punctuation mismatches, whitespace issues, and number consistency. Paste text or upload CSV." />
+import { describe, it, expect } from "vitest";
+import { resultsToCsvRows } from "./exportCsv.js";
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="LQA Checker — String QA for Localization" />
-    <meta property="og:description" content="Character limits, placeholders, punctuation, whitespace, and number checks for translated strings. CSV in, CSV out." />
-    <meta property="og:url" content="https://lqa.zirafinjezik.hr" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="LQA Checker — String QA for Localization" />
-    <meta name="twitter:description" content="Character limits, placeholders, punctuation, whitespace, and number checks for translated strings. CSV in, CSV out." />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
+describe("resultsToCsvRows", () => {
+  it("worst severity wins, pass rows have empty issues cell", () => {
+    const rows = resultsToCsvRows([
+      { source: "a", target: "b", issues: [{ type: "All checks", severity: "pass", msg: "ok" }] },
+      { source: "c", target: "d", issues: [{ type: "Length", severity: "error", msg: "overflow" }, { type: "Numbers", severity: "warn", msg: "5" }] },
+    ]);
+    expect(rows[0].Status).toBe("Pass");
+    expect(rows[0].Issues).toBe("");
+    expect(rows[1].Status).toBe("Error");
+    expect(rows[1].Issues).toBe("Length: overflow | Numbers: 5");
+  });
+});
