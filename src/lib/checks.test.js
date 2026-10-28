@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { charCount, checkLength, checkPunctuation, checkPlaceholders, checkWhitespace, checkNumbers, checkQuotes, runChecks, pairLines, buildResults } from "./checks.js";
+import { charCount, checkLength, checkPunctuation, checkPlaceholders, checkWhitespace, checkNumbers, checkQuotes, checkDashes, runChecks, pairLines, buildResults } from "./checks.js";
 import { getLocale } from "./locales.js";
 
 const msgs = issues => issues.map(i => `${i.severity}:${i.type}`);
@@ -141,9 +141,15 @@ describe("checkNumbers, with locales", () => {
     expect(checkNumbers("10000", "10\u202F000", en, de)).toEqual([]);
   });
 
-  it("Swiss German apostrophe grouping and decimal period", () => {
-    expect(checkNumbers("10,000.50", "10’000.50", en, ch)).toEqual([]);
-    expect(checkNumbers("10,000.50", "10'000.50", en, ch)).toEqual([]);
+  it("Swiss German: apostrophe grouping, decimal comma in text, decimal point only after CHF/Fr.", () => {
+    expect(checkNumbers("10,000.50", "10’000,50", en, ch)).toEqual([]);
+    expect(checkNumbers("10,000.50", "10'000,50", en, ch)).toEqual([]);
+    expect(msgs(checkNumbers("10,000.50", "10’000.50", en, ch))).toEqual(["warn:Number format"]);
+    expect(msgs(checkNumbers("1.5 kg", "1.5 kg", en, ch))).toEqual(["warn:Number format"]);
+    expect(checkNumbers("1.5 kg", "1,5 kg", en, ch)).toEqual([]);
+    expect(checkNumbers("$12.50", "CHF 12.50", en, ch)).toEqual([]);
+    expect(checkNumbers("$12.50", "Fr. 12.50", en, ch)).toEqual([]);
+    expect(checkNumbers("$1,250.50", "CHF 1’250.50", en, ch)).toEqual([]);
     expect(checkNumbers("10,000.50", "10.000,50", en, ch)[0].severity).toBe("warn");
   });
 
@@ -213,5 +219,38 @@ describe("buildResults", () => {
   it("missing source flagged too", () => {
     const r = buildResults([{ source: "", target: "Bok" }], 0);
     expect(r[0].issues[0].msg).toContain("No source");
+  });
+});
+
+describe("checkDashes", () => {
+  const de = getLocale("de"), en = getLocale("en"), hr = getLocale("hr");
+
+  it("silent without a locale and with correct dashes", () => {
+    expect(checkDashes("Test - test", undefined)).toEqual([]);
+    expect(checkDashes("Test – test, 10–20 Stück, –40 °C", de)).toEqual([]);
+    expect(checkDashes("Test—test, 10–20 items", en)).toEqual([]);
+    expect(checkDashes("Test – test", en)).toEqual([]); // spaced en dash is fine in English too
+  });
+
+  it("spaced hyphen and the wrong dash", () => {
+    expect(checkDashes("Test - test", de)[0].msg).toContain("en dash");
+    expect(checkDashes("Test—test", de)[0].msg).toContain("Em dash");
+    expect(checkDashes("Test—test", hr)[0].msg).toContain("Em dash");
+    expect(checkDashes("Test - test", en)[0].msg).toContain("em dash");
+    expect(checkDashes("Test—test", en)).toEqual([]);
+  });
+
+  it("number ranges and minus signs", () => {
+    expect(checkDashes("10-20 Stück", de)[0].msg).toContain("10-20");
+    expect(checkDashes("1,5-2,5 kg", de)[0].msg).toContain("1,5-2,5");
+    expect(checkDashes("-40 °C", de)[0].msg).toContain("-40");
+    expect(checkDashes("Temperatur: -5 bis -40 °C", de)[0].msg).toContain("-5, -40");
+  });
+
+  it("leaves dates, codes and compounds alone", () => {
+    expect(checkDashes("2026-10-28", de)).toEqual([]);
+    expect(checkDashes("AH22-100 und E-Mail", de)).toEqual([]);
+    expect(checkDashes("USB-C-Kabel", de)).toEqual([]);
+    expect(checkDashes("Drücke {0}-{1}", de)).toEqual([]);
   });
 });

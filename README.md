@@ -23,7 +23,8 @@ A lightweight QA tool for localization teams that checks translated strings for 
 - **Number consistency**: numbers are compared by value, not by digit string, so 1,000 vs 1.000 passes while 1.5 vs 15 fails. Without a language selected, ambiguous notations are read every plausible way; with source and target languages selected, each side is read in its own notation (EN 1,000 copied into a German target is caught as 1.0)
 - **Number format**: with a target language selected, numbers in the target that break its notation are flagged (wrong decimal separator, wrong thousands separator, five or more digits without grouping)
 - **Quotation marks**: with a target language selected, straight quotes and quote styles from other languages are flagged („…“ for German, „…” for Croatian, «…» for Swiss German and French, and so on)
-- **Language presets**: English, German (DE/AT and CH), Croatian, French, Italian, Spanish, Dutch, Portuguese, Polish, Czech. Leave both on "Unspecified" for the lenient, language-agnostic behaviour
+- **Dashes**: with a target language selected, a hyphen doing a dash's job (`word - word`), the wrong dash (em dash in German), hyphens in number ranges (`10-20`) and hyphens as minus signs (`-40`) are flagged. Compounds, product codes and ISO dates are left alone
+- **Language presets**: English, German (DE/AT and CH; Swiss German takes the decimal comma in text and the decimal point only after CHF/Fr.), Croatian, French, Italian, Spanish, Dutch, Portuguese, Polish, Czech. Leave both on "Unspecified" for the lenient, language-agnostic behaviour
 - **Two input modes**: paste source/target strings directly (one per line) or upload a CSV file with column mapping
 - **Summary dashboard**: overview of total strings, errors, warnings, and passes at a glance
 - **Expandable results table**: click any row to see detailed issue breakdown with severity badges (Error, Warning, Pass)
@@ -69,6 +70,7 @@ Character overflow and punctuation mismatch are among the most common and easily
 | Number mismatch | Error | Number value present in one side only (1.5 vs 15, 12 vs 13) |
 | Number format | Warning | Target number breaks the target language's notation, or has 5+ digits with no thousands separator (needs a target language) |
 | Quotes | Warning | Target uses straight quotes or another language's quote style (needs a target language) |
+| Dashes | Warning | Spaced hyphen, wrong dash, hyphen in a number range or as a minus sign (needs a target language) |
 | Alignment | Error | Line has a source but no target, or a target but no source |
 
 ---

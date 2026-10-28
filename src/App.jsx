@@ -67,7 +67,7 @@ export default function LQAChecker() {
             <span style={{ background: "linear-gradient(135deg, #22d3ee, #7dd3fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>LQA</span>
             <span style={{ color: "#e0e0e0" }}> Checker</span>
           </h1>
-          <p style={{ margin: "4px 0 0", color: "#555", fontSize: 13 }}>Character limits, placeholders, punctuation, whitespace, numbers, quotes</p>
+          <p style={{ margin: "4px 0 0", color: "#555", fontSize: 13 }}>Character limits, placeholders, punctuation, whitespace, numbers, quotes, dashes</p>
         </div>
 
         <div style={css.card}>

@@ -108,7 +108,8 @@ function tokenize(text, loc) {
   // With a locale selected, "10 000" is read as one number; whether a plain
   // space is an accepted separator there is a formatting question, not a
   // value question. Without a locale, spaces always split numbers.
-  return text.match(loc && loc.decimal ? NUMBER_RE_SPACED : NUMBER_RE) || [];
+  const re = loc && loc.decimal ? NUMBER_RE_SPACED : NUMBER_RE;
+  return [...text.matchAll(re)].map(m => ({ tok: m[0], before: text.slice(0, m.index) }));
 }
 
 function keyOf(v) {
@@ -168,8 +169,14 @@ function describe(loc) {
 export function checkNumbers(source, target, srcLoc, tgtLoc) {
   const read = (tok, loc) => (loc && loc.decimal) ? strictValues(tok, loc) : { values: lenientValues(tok), format: null };
 
-  const src = tokenize(source, srcLoc).map(tok => ({ tok, ...read(tok, srcLoc), used: false }));
-  const tgt = tokenize(target, tgtLoc).map(tok => ({ tok, ...read(tok, tgtLoc), used: false }));
+  const src = tokenize(source, srcLoc).map(({ tok }) => ({ tok, ...read(tok, srcLoc), used: false }));
+  const tgt = tokenize(target, tgtLoc).map(({ tok, before }) => {
+    const r = { tok, ...read(tok, tgtLoc), used: false };
+    // Money amounts after CHF / Fr. keep the decimal point in Swiss German.
+    if (r.format === "malformed" && tgtLoc.moneyPoint && tgtLoc.moneyPoint.test(before) && /^\d[\d'\u2019\u202F\u00A0]*\.\d{1,2}$/.test(tok))
+      r.format = null;
+    return r;
+  });
 
   const keys = n => new Set(n.values.map(keyOf));
   for (const s of src) {
@@ -215,6 +222,37 @@ export function checkQuotes(target, tgtLoc) {
   return [{ type: "Quotes", severity: "warn", msg: `Found ${wrong.join(" ")} in target, ${tgtLoc.label} uses ${open}…${close}` }];
 }
 
+// ---------------------------------------------------------------------------
+// Dashes and hyphens (target only, only with a locale selected).
+//   - a hyphen between spaces is a hyphen doing a dash's job
+//   - an em dash in a language that uses the en dash (and vice versa)
+//   - a hyphen in a number range (10-20) should be an en dash
+//   - a hyphen as a minus sign (-40) should be an en dash or a minus sign
+// ISO dates, product codes and anything glued to letters are left alone.
+// ---------------------------------------------------------------------------
+
+export function checkDashes(target, tgtLoc) {
+  if (!tgtLoc || !tgtLoc.decimal) return [];
+  let text = target;
+  for (const re of PLACEHOLDER_RES) text = text.replace(re, "X"); // keep placeholders as words, not gaps
+  const want = tgtLoc.dash || "\u2013";
+  const wantName = want === "\u2014" ? "em dash (\u2014)" : "en dash (\u2013)";
+  const issues = [];
+  const push = msg => issues.push({ type: "Dashes", severity: "warn", msg });
+
+  if (/\s-\s/.test(text)) push(`Hyphen used as a dash, ${tgtLoc.label} uses the ${wantName}`);
+  // Languages on the en dash never use the em dash; English accepts both, so nothing to flag there.
+  if (want === "\u2013" && text.includes("\u2014")) push(`Em dash found, ${tgtLoc.label} uses the ${wantName}`);
+
+  // ISO dates (2026-10-28) never match: the middle pair is preceded by a hyphen, the first pair followed by one.
+  const ranges = [...text.matchAll(/(?<![\w\u2013-])(\d+(?:[.,]\d+)?)-(\d+(?:[.,]\d+)?)(?![\w-])/g)].map(m => m[0]);
+  if (ranges.length) push(`Hyphen in number range: ${ranges.join(", ")}, use the en dash (10\u201320)`);
+
+  const minus = [...text.matchAll(/(?<![\w\u2013-])-(\d+(?:[.,]\d+)?)(?![\w-])/g)].map(m => m[0]);
+  if (minus.length) push(`Hyphen as minus sign: ${minus.join(", ")}, use the en dash (\u201340) or the minus sign (\u221240)`);
+  return issues;
+}
+
 export function runChecks(source, target, limit, opts = {}) {
   const { srcLoc, tgtLoc } = opts;
   const issues = [
@@ -224,6 +262,7 @@ export function runChecks(source, target, limit, opts = {}) {
     ...checkWhitespace(source, target),
     ...checkNumbers(source, target, srcLoc, tgtLoc),
     ...checkQuotes(target, tgtLoc),
+    ...checkDashes(target, tgtLoc),
   ];
   if (issues.length === 0) {
     const info = limit > 0 ? ` (${charCount(target)}/${limit} chars)` : "";
