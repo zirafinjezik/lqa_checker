@@ -20,7 +20,10 @@ A lightweight QA tool for localization teams that checks translated strings for 
 - **Placeholder and tag parity**: `{0}`, `%s`, `%1$s`, `<b>` tags, and `\n` escapes are counted in source and target; any mismatch is an error
 - **Punctuation consistency checks**: mismatched ending punctuation, plus ellipsis, exclamation mark, and question mark count differences
 - **Whitespace checks**: leading/trailing whitespace and double spaces introduced by the target
-- **Number consistency**: digits present in source but missing in target (locale separators like 1,000 vs 1.000 are not flagged)
+- **Number consistency**: numbers are compared by value, not by digit string, so 1,000 vs 1.000 passes while 1.5 vs 15 fails. Without a language selected, ambiguous notations are read every plausible way; with source and target languages selected, each side is read in its own notation (EN 1,000 copied into a German target is caught as 1.0)
+- **Number format**: with a target language selected, numbers in the target that break its notation are flagged (wrong decimal separator, wrong thousands separator, five or more digits without grouping)
+- **Quotation marks**: with a target language selected, straight quotes and quote styles from other languages are flagged („…“ for German, „…” for Croatian, «…» for Swiss German and French, and so on)
+- **Language presets**: English, German (DE/AT and CH), Croatian, French, Italian, Spanish, Dutch, Portuguese, Polish, Czech. Leave both on "Unspecified" for the lenient, language-agnostic behaviour
 - **Two input modes**: paste source/target strings directly (one per line) or upload a CSV file with column mapping
 - **Summary dashboard**: overview of total strings, errors, warnings, and passes at a glance
 - **Expandable results table**: click any row to see detailed issue breakdown with severity badges (Error, Warning, Pass)
@@ -63,7 +66,9 @@ Character overflow and punctuation mismatch are among the most common and easily
 | Question mark mismatch | Warning | Different number of question marks in source vs. target |
 | Placeholder mismatch | Error | Placeholder, tag, or escape present in one side only |
 | Whitespace | Warning | Leading/trailing whitespace or double spaces introduced by target |
-| Number mismatch | Warning | Number present in one side only |
+| Number mismatch | Error | Number value present in one side only (1.5 vs 15, 12 vs 13) |
+| Number format | Warning | Target number breaks the target language's notation, or has 5+ digits with no thousands separator (needs a target language) |
+| Quotes | Warning | Target uses straight quotes or another language's quote style (needs a target language) |
 | Alignment | Error | Line has a source but no target, or a target but no source |
 
 ---

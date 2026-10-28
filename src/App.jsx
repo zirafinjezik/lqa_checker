@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import Papa from "papaparse";
 import { pairLines, buildResults } from "./lib/checks.js";
+import { LOCALES, LOCALE_IDS, getLocale } from "./lib/locales.js";
 import { downloadResultsCsv } from "./lib/exportCsv.js";
 import { css } from "./theme.js";
 import ResultRow from "./components/ResultRow.jsx";
@@ -10,6 +11,8 @@ export default function LQAChecker() {
   const [srcText, setSrcText] = useState("");
   const [tgtText, setTgtText] = useState("");
   const [charLimit, setCharLimit] = useState("");
+  const [srcLocale, setSrcLocale] = useState("any");
+  const [tgtLocale, setTgtLocale] = useState("any");
   const [results, setResults] = useState(null);
   const [csvCols, setCsvCols] = useState({ src: "", tgt: "" });
   const [csvHeaders, setCsvHeaders] = useState([]);
@@ -37,14 +40,15 @@ export default function LQAChecker() {
 
   const analyze = () => {
     const limit = parseInt(charLimit) || 0;
+    const opts = { srcLoc: getLocale(srcLocale), tgtLoc: getLocale(tgtLocale) };
     if (mode === "paste") {
       const rows = pairLines(srcText, tgtText);
       if (rows.length === 0) return;
-      setResults(buildResults(rows, limit));
+      setResults(buildResults(rows, limit, opts));
     } else {
       if (!csvCols.src || !csvCols.tgt) return;
       const rows = csvData.map(row => ({ source: row[csvCols.src] || "", target: row[csvCols.tgt] || "" }));
-      setResults(buildResults(rows, limit));
+      setResults(buildResults(rows, limit, opts));
     }
   };
 
@@ -63,7 +67,7 @@ export default function LQAChecker() {
             <span style={{ background: "linear-gradient(135deg, #22d3ee, #7dd3fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>LQA</span>
             <span style={{ color: "#e0e0e0" }}> Checker</span>
           </h1>
-          <p style={{ margin: "4px 0 0", color: "#555", fontSize: 13 }}>Character limits, placeholders, punctuation, whitespace, numbers</p>
+          <p style={{ margin: "4px 0 0", color: "#555", fontSize: 13 }}>Character limits, placeholders, punctuation, whitespace, numbers, quotes</p>
         </div>
 
         <div style={css.card}>
@@ -128,6 +132,18 @@ export default function LQAChecker() {
             <div>
               <label style={css.label}>Character limit (optional)</label>
               <input style={{ ...css.input, width: 160 }} type="number" placeholder="e.g. 60" value={charLimit} onChange={e => setCharLimit(e.target.value)} />
+            </div>
+            <div>
+              <label style={css.label}>Source language</label>
+              <select style={css.select} value={srcLocale} onChange={e => setSrcLocale(e.target.value)}>
+                {LOCALE_IDS.map(id => <option key={id} value={id}>{LOCALES[id].label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={css.label}>Target language</label>
+              <select style={css.select} value={tgtLocale} onChange={e => setTgtLocale(e.target.value)}>
+                {LOCALE_IDS.map(id => <option key={id} value={id}>{LOCALES[id].label}</option>)}
+              </select>
             </div>
             <button style={css.btn} onClick={analyze}>Run Checks</button>
           </div>
